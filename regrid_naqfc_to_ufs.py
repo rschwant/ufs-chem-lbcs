@@ -3,19 +3,19 @@ import xarray as xr
 import monet as m
 
 
-def fix_all(fname,cmaq_fname):
+def fix_all(fname,cmaq_fname,grid_fname='lbcs/grid_spec.nc'):
     o = open_cmaq_bl(lbcf=cmaq_fname)
     print('interpolating bottom')
-    bottom = fix_lbcs_bottom(o,fname)
+    bottom = fix_lbcs_bottom(o,fname,grid_fname)
     bottom = bottom.drop([n for n in bottom.data_vars if 'bottom' not in n])
     print('interpolating top')
-    top = fix_lbcs_top(o,fname)
+    top = fix_lbcs_top(o,fname,grid_fname)
     top = top.drop([n for n in top.data_vars if 'top' not in n])
     print('interpolating right')
-    right = fix_lbcs_right(o,fname)
+    right = fix_lbcs_right(o,fname,grid_fname)
     right = right.drop([n for n in right.data_vars if 'right' not in n])
     print('interpolating left')
-    left = fix_lbcs_left(o,fname)
+    left = fix_lbcs_left(o,fname,grid_fname)
     left = left.drop([n for n in left.data_vars if 'left' not in n])
     
     a = xr.merge([bottom,top,left,right])
@@ -24,9 +24,9 @@ def fix_all(fname,cmaq_fname):
 
     
 #    return right,left
-def fix_lbcs_top(cmaq_lbcs,fname):
+def fix_lbcs_top(cmaq_lbcs,fname,grid_fname):
     orig = xr.open_dataset(fname)
-    lbcs_top = open_fv3_lbcs_for_top(fname=fname)
+    lbcs_top = open_fv3_lbcs_for_top(fname=fname,grid_fname=grid_fname)
     lbcs = interp_top(lbcs_top,cmaq_lbcs)
     top_vars = [n for n in lbcs.data_vars if 'top' in n]
     for h in range(4):
@@ -49,9 +49,9 @@ def fix_lbcs_top(cmaq_lbcs,fname):
 
     return orig.drop(dropvars)
 
-def fix_lbcs_left(cmaq_lbcs,fname):
+def fix_lbcs_left(cmaq_lbcs,fname,grid_fname):
     orig = xr.open_dataset(fname)
-    lbcs_left = open_fv3_lbcs_for_left(fname=fname)
+    lbcs_left = open_fv3_lbcs_for_left(fname=fname,grid_fname=grid_fname)
     lbcs = interp_left(lbcs_left,cmaq_lbcs)
     left_vars = [n for n in lbcs.data_vars if 'left' in n]
     for h in range(4):
@@ -66,9 +66,9 @@ def fix_lbcs_left(cmaq_lbcs,fname):
 
     return orig.drop(dropvars)
 
-def fix_lbcs_right(cmaq_lbcs,fname):
+def fix_lbcs_right(cmaq_lbcs,fname,grid_fname):
     orig = xr.open_dataset(fname)
-    lbcs_right = open_fv3_lbcs_for_right(fname=fname)
+    lbcs_right = open_fv3_lbcs_for_right(fname=fname,grid_fname=grid_fname)
     lbcs = interp_right(lbcs_right,cmaq_lbcs)
     right_vars = [n for n in lbcs.data_vars if 'right' in n]
     for h in range(4):
@@ -83,9 +83,9 @@ def fix_lbcs_right(cmaq_lbcs,fname):
 
     return orig.drop(dropvars)
 
-def fix_lbcs_bottom(cmaq_lbcs,fname):
+def fix_lbcs_bottom(cmaq_lbcs,fname,grid_fname):
     orig = xr.open_dataset(fname)
-    lbcs_bottom = open_fv3_lbcs_for_bottom(fname=fname)
+    lbcs_bottom = open_fv3_lbcs_for_bottom(fname=fname,grid_fname=grid_fname)
     lbcs = interp_bottom(lbcs_bottom,cmaq_lbcs)
     bottom_vars = [n for n in lbcs.data_vars if 'bottom' in n]
     for h in range(4):
